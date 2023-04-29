@@ -21,7 +21,7 @@ CC=gcc
 CFLAGS= -ggdb3 -fPIC
 WDIR=..
 
-all: sneaky_process
+all: sneaky_process build
 
 sneaky_process: sneaky_process.c
 	$(CC) $(CFLAGS) -I$(WDIR) -L$(WDIR) -Wl,-rpath=$(WDIR) -o $@ sneaky_process.c
