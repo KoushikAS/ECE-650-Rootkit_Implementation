@@ -64,9 +64,11 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 asmlinkage int (*original_getdents64)(struct pt_regs *);
 
 asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
-{
-   printk(KERN_INFO "Here\n"); 
-  return  (*original_getdents64)(regs);
+{  
+  int original_result =  (*original_getdents64)(regs);
+  struct linux_dirent64 * original_dirp = regs->si;
+  printk(KERN_INFO "Here %s \n", original_dirp->d_name);
+  return original_result;
 }
 
 /**
