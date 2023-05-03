@@ -47,7 +47,7 @@ void loadSneakyModule(int pid){
 
 
 void unLoadingSneakyModule(){
-  char command[] = "rmmod sneaky_mod";
+  char command[] = "rmmod sneaky_mod.ko";
   system(command);
   printf("Sneaky Module unloaded");
 
